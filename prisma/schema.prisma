@@ -1,0 +1,115 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+
+model User {
+
+  id Int @id @default(autoincrement()) 
+  firsName String
+  lastName String
+  email String @unique
+  mobile String
+  pasword String
+  otp String
+  create_at DateTime @db.Date
+  updated_at DateTime @db.Date
+  categories categories[]
+  customer customer[]
+  invoices Invoices[]
+  invoice_products invoice_products[]
+  products products[]
+}
+
+model categories {
+  id Int @id @default(autoincrement()) 
+  name String
+  user_id BigInt
+  create_at DateTime @db.Date
+  updated_at DateTime @db.Date
+  userID Int @unique
+  User User @relation(fields: [userID],references: [id],onDelete: Restrict,onUpdate:Cascade)
+  products products[]
+  
+
+}
+
+
+model customer {
+  id  Int  @id @default(autoincrement())
+   name String
+   email String
+   mobile String
+   user_id Int @unique
+  create_at DateTime @db.Date
+  updated_at DateTime @db.Date
+  userID Int
+  User User @relation(fields: [userID],references: [id],onDelete: Restrict,onUpdate:Cascade)
+   invoices Invoices[]
+
+
+}
+
+model Invoices{
+  id Int @id @default(autoincrement())
+  total String
+  discoutn String
+  vat String
+  payable String
+  user_id BigInt @unique
+  customer_id BigInt @unique
+  create_at DateTime @db.Date
+  updated_at DateTime @db.Date
+  userID Int
+  User User @relation(fields: [userID],references: [id],onDelete: Restrict,onUpdate:Cascade)
+
+  custID Int
+  customer customer @relation(fields: [custID],references: [id],onDelete: Restrict,onUpdate:Cascade)
+  invoice_products invoice_products[]
+}
+
+model invoice_products{
+   id Int @id @default(autoincrement())
+   invoice_id BigInt @unique
+   product_id BigInt @unique
+   user_id BigInt @unique
+   qty String
+   sale_price String
+   created_at DateTime @db.Date
+   updated_at DateTime @db.Date
+   userID Int
+   User User @relation(fields: [userID],references: [id],onDelete: Restrict,onUpdate:Cascade)
+   invoiceId Int
+   Invoices Invoices @relation(fields: [invoiceId],references: [id],onDelete: Restrict,onUpdate:Cascade)
+   products products[]
+
+}
+
+model products{
+  id Int @id @default(autoincrement())
+  user_id BigInt @unique
+  category_id BigInt @unique
+  name String
+  price String
+  unit String
+  img_url String
+  created_at DateTime @db.Date
+  updated_at DateTime @db.Date
+
+  userID Int
+  invoice_products invoice_products @relation(fields: [userID],references: [id],onDelete: Restrict,onUpdate: Cascade)
+
+  userconnectID Int
+   User User @relation(fields: [userconnectID],references: [id],onDelete: Restrict,onUpdate:Cascade)
+
+   productID Int
+   categories categories @relation(fields: [productID],references: [id],onDelete: Restrict,onUpdate:Cascade)
+}
