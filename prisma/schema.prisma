@@ -10,106 +10,120 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-model User {
-
-  id Int @id @default(autoincrement()) 
-  firsName String
-  lastName String
-  email String @unique
-  mobile String
-  pasword String
-  otp String
-  create_at DateTime @db.Date
-  updated_at DateTime @db.Date
-  categories categories[]
+model user{
+  id BigInt @id @default(autoincrement())
+  firstname String @db.VarChar(40)
+  lastName String @db.VarChar(50)
+  email String @db.VarChar(50) @unique
+  mobile String @db.VarChar(44)
+  password String @db.VarChar(22)
+  otp String @db.VarChar(22)
+  
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  updatedAt DateTime @default(now()) @db.Timestamp(0)  @updatedAt
+  Constraints my_constrain
+  index my_index
   customer customer[]
-  invoices Invoices[]
+  invoices invoices[]
   invoice_products invoice_products[]
   products products[]
-}
+  categories categories[]
 
-model categories {
-  id Int @id @default(autoincrement()) 
-  name String
-  user_id BigInt
-  create_at DateTime @db.Date
-  updated_at DateTime @db.Date
-  userID Int @unique
-  User User @relation(fields: [userID],references: [id],onDelete: Restrict,onUpdate:Cascade)
-  products products[]
+   
   
-
 }
-
 
 model customer {
-  id  Int  @id @default(autoincrement())
-   name String
-   email String
-   mobile String
-   user_id Int @unique
-  create_at DateTime @db.Date
-  updated_at DateTime @db.Date
-  userID Int
-  User User @relation(fields: [userID],references: [id],onDelete: Restrict,onUpdate:Cascade)
-   invoices Invoices[]
+    id BigInt @id @default(autoincrement())
+    name String @db.VarChar(22)
+    email String @db.VarChar(44)
+    mobile String @db.VarChar(22)
+    user_id BigInt 
+    createdAt DateTime @default(now()) @db.Timestamp(0)
+    updatedAt DateTime @default(now()) @db.Timestamp(0) @updatedAt
+    Constraints my_constrain
+    indexes my_index
+    user user @relation(fields: [user_id],references: [id],onDelete: Restrict,onUpdate: Cascade)
+    invoices invoices[]
 
-
+     
 }
 
-model Invoices{
-  id Int @id @default(autoincrement())
-  total String
-  discoutn String
-  vat String
-  payable String
-  user_id BigInt @unique
-  customer_id BigInt @unique
-  create_at DateTime @db.Date
-  updated_at DateTime @db.Date
-  userID Int
-  User User @relation(fields: [userID],references: [id],onDelete: Restrict,onUpdate:Cascade)
 
-  custID Int
-  customer customer @relation(fields: [custID],references: [id],onDelete: Restrict,onUpdate:Cascade)
-  invoice_products invoice_products[]
+model invoices{
+  id BigInt @id @default(autoincrement())
+  total String @db.VarChar(66)
+  discount String @db.VarChar(22)
+  vat String @db.VarChar(11)
+  payable String @db.VarChar(33)
+  user_id BigInt
+  customer_id BigInt
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+   updatedAt DateTime @default(now()) @db.Timestamp(0) @updatedAt
+   customer customer @relation(fields: [customer_id],references: [id],onDelete: Restrict,onUpdate: Cascade)
+   user user @relation(fields: [user_id],references: [id],onDelete: Restrict,onUpdate: Cascade)
+   Constraints my_constrain
+   indexes my_index
+   invoice_products invoice_products[]
 }
+
 
 model invoice_products{
-   id Int @id @default(autoincrement())
-   invoice_id BigInt @unique
-   product_id BigInt @unique
-   user_id BigInt @unique
-   qty String
-   sale_price String
-   created_at DateTime @db.Date
-   updated_at DateTime @db.Date
-   userID Int
-   User User @relation(fields: [userID],references: [id],onDelete: Restrict,onUpdate:Cascade)
-   invoiceId Int
-   Invoices Invoices @relation(fields: [invoiceId],references: [id],onDelete: Restrict,onUpdate:Cascade)
-   products products[]
+  id BigInt @id @default(autoincrement())
+  invoice_id BigInt    
+  product_id BigInt   
+  user_id BigInt 
+  qty String @db.VarChar(33)
+  sale_price String @db.VarChar(44)
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+   updatedAt DateTime @default(now()) @db.Timestamp(0) @updatedAt
+   Constraints my_constrain
+   indexes my_index
 
+   user user @relation(fields: [user_id],references: [id],onDelete: Restrict,onUpdate: Cascade)
+
+   invoices invoices @relation(fields: [invoice_id],references: [id],onDelete: Restrict,onUpdate: Cascade)
+   products  products @relation(fields: [product_id],references: [id],onDelete: Restrict,onUpdate: Cascade)
+}
+ 
+ model products{
+  id BigInt @id @default(autoincrement())
+  category_id BigInt 
+  user_id BigInt  
+
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+   updatedAt DateTime @default(now()) @db.Timestamp(0) @updatedAt
+   Constraints my_constrain
+   indexes my_index
+   invoice_products invoice_products[]
+   user user @relation(fields: [user_id],references: [id],onDelete: Restrict,onUpdate: Cascade)
+
+ }
+ 
+ model categories{
+  id BigInt @id @default(autoincrement())
+  name String @db.VarChar(33)
+  user_id BigInt 
+  createdAt DateTime @default(now()) @db.Timestamp(0)
+  updatedAt DateTime @default(now()) @db.Timestamp(0) @updatedAt
+  Constraints my_constrain
+  indexes my_index
+   user user @relation(fields: [user_id],references: [id],onDelete: Restrict,onUpdate: Cascade)
+ }
+
+
+
+
+
+enum my_constrain{
+  lastName
+  id 
+  pass
 }
 
-model products{
-  id Int @id @default(autoincrement())
-  user_id BigInt @unique
-  category_id BigInt @unique
-  name String
-  price String
-  unit String
-  img_url String
-  created_at DateTime @db.Date
-  updated_at DateTime @db.Date
+enum my_index{
 
-  userID Int
-  invoice_products invoice_products @relation(fields: [userID],references: [id],onDelete: Restrict,onUpdate: Cascade)
-
-  userconnectID Int
-   User User @relation(fields: [userconnectID],references: [id],onDelete: Restrict,onUpdate:Cascade)
-
-   productID Int
-   categories categories @relation(fields: [productID],references: [id],onDelete: Restrict,onUpdate:Cascade)
+  name 
+  pass
 }
+
